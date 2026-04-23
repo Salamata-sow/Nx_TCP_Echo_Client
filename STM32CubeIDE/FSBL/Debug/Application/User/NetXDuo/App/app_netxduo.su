@@ -1,0 +1,8 @@
+C:/Users/PC/Downloads/Nx_TCP_Echo_Client/FSBL/NetXDuo/App/app_netxduo.c:123:6:MX_NetXDuo_Init	64	static
+C:/Users/PC/Downloads/Nx_TCP_Echo_Client/FSBL/NetXDuo/App/app_netxduo.c:367:13:ip_address_change_notify_callback	16	static
+C:/Users/PC/Downloads/Nx_TCP_Echo_Client/FSBL/NetXDuo/App/app_netxduo.c:399:13:App_Ping_8_8_8_8	40	static
+C:/Users/PC/Downloads/Nx_TCP_Echo_Client/FSBL/NetXDuo/App/app_netxduo.c:459:13:App_DNS_Client_Init	24	static
+C:/Users/PC/Downloads/Nx_TCP_Echo_Client/FSBL/NetXDuo/App/app_netxduo.c:511:13:App_DNS_Resolve_And_Ping_Google	48	static
+C:/Users/PC/Downloads/Nx_TCP_Echo_Client/FSBL/NetXDuo/App/app_netxduo.c:617:13:nx_app_thread_entry	32	static
+C:/Users/PC/Downloads/Nx_TCP_Echo_Client/FSBL/NetXDuo/App/app_netxduo.c:701:13:App_TCP_Thread_Entry	16	static
+C:/Users/PC/Downloads/Nx_TCP_Echo_Client/FSBL/NetXDuo/App/app_netxduo.c:721:13:App_Link_Thread_Entry	40	static

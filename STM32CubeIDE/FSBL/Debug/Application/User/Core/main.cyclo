@@ -1,0 +1,13 @@
+../../../Drivers/STM32N6xx_HAL_Driver/Inc/stm32n6xx_ll_bus.h:1165:22:LL_AHB3_GRP1_EnableClock	1
+../../../Drivers/STM32N6xx_HAL_Driver/Inc/stm32n6xx_ll_bus.h:1407:22:LL_AHB4_GRP1_EnableClock	1
+C:/Users/PC/Downloads/Nx_TCP_Echo_Client/FSBL/Core/Src/main.c:106:5:main	5
+C:/Users/PC/Downloads/Nx_TCP_Echo_Client/FSBL/Core/Src/main.c:168:6:SystemClock_Config	10
+C:/Users/PC/Downloads/Nx_TCP_Echo_Client/FSBL/Core/Src/main.c:286:13:MX_ETH1_Init	3
+C:/Users/PC/Downloads/Nx_TCP_Echo_Client/FSBL/Core/Src/main.c:338:15:SystemIsolation_Config	1
+C:/Users/PC/Downloads/Nx_TCP_Echo_Client/FSBL/Core/Src/main.c:389:13:MX_USART1_UART_Init	5
+C:/Users/PC/Downloads/Nx_TCP_Echo_Client/FSBL/Core/Src/main.c:437:13:MX_GPIO_Init	1
+C:/Users/PC/Downloads/Nx_TCP_Echo_Client/FSBL/Core/Src/main.c:490:1:__io_putchar	1
+C:/Users/PC/Downloads/Nx_TCP_Echo_Client/FSBL/Core/Src/main.c:503:6:Success_Handler	1
+C:/Users/PC/Downloads/Nx_TCP_Echo_Client/FSBL/Core/Src/main.c:519:6:MPU_Config	1
+C:/Users/PC/Downloads/Nx_TCP_Echo_Client/FSBL/Core/Src/main.c:574:6:HAL_TIM_PeriodElapsedCallback	2
+C:/Users/PC/Downloads/Nx_TCP_Echo_Client/FSBL/Core/Src/main.c:592:6:Error_Handler	1
