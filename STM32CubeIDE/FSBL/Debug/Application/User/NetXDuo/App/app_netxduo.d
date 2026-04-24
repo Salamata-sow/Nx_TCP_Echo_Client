@@ -39,6 +39,8 @@ Application/User/NetXDuo/App/app_netxduo.o: \
  ../../../Drivers/STM32N6xx_HAL_Driver/Inc/stm32n6xx_hal_eth.h \
  ../../../Drivers/STM32N6xx_HAL_Driver/Inc/stm32n6xx_hal_eth_ex.h \
  ../../../Drivers/STM32N6xx_HAL_Driver/Inc/stm32n6xx_hal_exti.h \
+ ../../../Drivers/STM32N6xx_HAL_Driver/Inc/stm32n6xx_hal_i2c.h \
+ ../../../Drivers/STM32N6xx_HAL_Driver/Inc/stm32n6xx_hal_i2c_ex.h \
  ../../../Drivers/STM32N6xx_HAL_Driver/Inc/stm32n6xx_hal_pwr.h \
  ../../../Drivers/STM32N6xx_HAL_Driver/Inc/stm32n6xx_hal_pwr_ex.h \
  ../../../Drivers/STM32N6xx_HAL_Driver/Inc/stm32n6xx_hal_tim.h \
@@ -91,6 +93,8 @@ C:/Users/PC/Downloads/Nx_TCP_Echo_Client/FSBL/NetXDuo/App/app_netxduo.h:
 ../../../Drivers/STM32N6xx_HAL_Driver/Inc/stm32n6xx_hal_eth.h:
 ../../../Drivers/STM32N6xx_HAL_Driver/Inc/stm32n6xx_hal_eth_ex.h:
 ../../../Drivers/STM32N6xx_HAL_Driver/Inc/stm32n6xx_hal_exti.h:
+../../../Drivers/STM32N6xx_HAL_Driver/Inc/stm32n6xx_hal_i2c.h:
+../../../Drivers/STM32N6xx_HAL_Driver/Inc/stm32n6xx_hal_i2c_ex.h:
 ../../../Drivers/STM32N6xx_HAL_Driver/Inc/stm32n6xx_hal_pwr.h:
 ../../../Drivers/STM32N6xx_HAL_Driver/Inc/stm32n6xx_hal_pwr_ex.h:
 ../../../Drivers/STM32N6xx_HAL_Driver/Inc/stm32n6xx_hal_tim.h:

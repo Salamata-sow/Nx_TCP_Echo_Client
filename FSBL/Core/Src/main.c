@@ -28,6 +28,8 @@
 #endif /* __ICCARM__ */
 
 #include "hts221_reg.h"
+#include "lps22hh_reg.h"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -77,9 +79,23 @@ ETH_TxPacketConfig TxConfig;
 
 ETH_HandleTypeDef heth1;
 
+I2C_HandleTypeDef hi2c1;
+
 UART_HandleTypeDef huart1;
 
 /* USER CODE BEGIN PV */
+
+I2C_HandleTypeDef hi2c1;
+
+stmdev_ctx_t hts221_ctx;
+stmdev_ctx_t lps22hh_ctx;
+
+uint16_t hts221_addr  = (0x5F << 1);
+uint16_t lps22hh_addr = (0x5D << 1);
+
+int16_t hts221_temp_raw = 0;
+int16_t hts221_hum_raw  = 0;
+uint32_t lps22hh_press_raw = 0;
 
 /* USER CODE END PV */
 
@@ -89,8 +105,20 @@ static void MPU_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_USART1_UART_Init(void);
 static void MX_ETH1_Init(void);
+static void MX_I2C1_Init(void);
 static void SystemIsolation_Config(void);
 /* USER CODE BEGIN PFP */
+
+//static void MX_I2C1_Init(void);
+
+int32_t platform_read(void *handle, uint8_t reg, uint8_t *bufp, uint16_t len);
+int32_t platform_write(void *handle, uint8_t reg, const uint8_t *bufp, uint16_t len);
+
+float hts221_from_lsb_to_celsius_custom(int16_t lsb);
+float hts221_from_lsb_to_humidity_custom(int16_t lsb);
+
+int Sensors_Init(void);
+int Sensors_Read(float *temp, float *hum, float *press_hpa);
 
 /* USER CODE END PFP */
 
@@ -139,8 +167,17 @@ int main(void)
   MX_GPIO_Init();
   MX_USART1_UART_Init();
   MX_ETH1_Init();
+  MX_I2C1_Init();
   SystemIsolation_Config();
   /* USER CODE BEGIN 2 */
+  if (Sensors_Init() != 0)
+  {
+    printf("Sensors_Init failed\r\n");
+  }
+  else
+  {
+    printf("Sensors_Init OK\r\n");
+  }
 
   /* USER CODE END 2 */
 
@@ -331,6 +368,54 @@ static void MX_ETH1_Init(void)
 }
 
 /**
+  * @brief I2C1 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_I2C1_Init(void)
+{
+
+  /* USER CODE BEGIN I2C1_Init 0 */
+
+  /* USER CODE END I2C1_Init 0 */
+
+  /* USER CODE BEGIN I2C1_Init 1 */
+
+  /* USER CODE END I2C1_Init 1 */
+  hi2c1.Instance = I2C1;
+  hi2c1.Init.Timing = 0x30C0EDFF;
+  hi2c1.Init.OwnAddress1 = 0;
+  hi2c1.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
+  hi2c1.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
+  hi2c1.Init.OwnAddress2 = 0;
+  hi2c1.Init.OwnAddress2Masks = I2C_OA2_NOMASK;
+  hi2c1.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
+  hi2c1.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
+  if (HAL_I2C_Init(&hi2c1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  /** Configure Analogue filter
+  */
+  if (HAL_I2CEx_ConfigAnalogFilter(&hi2c1, I2C_ANALOGFILTER_ENABLE) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  /** Configure Digital filter
+  */
+  if (HAL_I2CEx_ConfigDigitalFilter(&hi2c1, 0) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN I2C1_Init 2 */
+
+  /* USER CODE END I2C1_Init 2 */
+
+}
+
+/**
   * @brief RIF Initialization Function
   * @param None
   * @retval None
@@ -357,6 +442,7 @@ static void MX_ETH1_Init(void)
   /* RIF-Aware IPs Config */
 
   /* set up GPIO configuration */
+  HAL_GPIO_ConfigPinAttributes(GPIOC,GPIO_PIN_1,GPIO_PIN_SEC|GPIO_PIN_NPRIV);
   HAL_GPIO_ConfigPinAttributes(GPIOE,GPIO_PIN_5,GPIO_PIN_SEC|GPIO_PIN_NPRIV);
   HAL_GPIO_ConfigPinAttributes(GPIOE,GPIO_PIN_6,GPIO_PIN_SEC|GPIO_PIN_NPRIV);
   HAL_GPIO_ConfigPinAttributes(GPIOF,GPIO_PIN_4,GPIO_PIN_SEC|GPIO_PIN_NPRIV);
@@ -371,6 +457,7 @@ static void MX_ETH1_Init(void)
   HAL_GPIO_ConfigPinAttributes(GPIOG,GPIO_PIN_0,GPIO_PIN_SEC|GPIO_PIN_NPRIV);
   HAL_GPIO_ConfigPinAttributes(GPIOG,GPIO_PIN_10,GPIO_PIN_SEC|GPIO_PIN_NPRIV);
   HAL_GPIO_ConfigPinAttributes(GPIOG,GPIO_PIN_11,GPIO_PIN_SEC|GPIO_PIN_NPRIV);
+  HAL_GPIO_ConfigPinAttributes(GPIOH,GPIO_PIN_9,GPIO_PIN_SEC|GPIO_PIN_NPRIV);
 
   /* USER CODE BEGIN RIF_Init 1 */
 
@@ -442,7 +529,9 @@ static void MX_GPIO_Init(void)
   /* USER CODE END MX_GPIO_Init_1 */
 
   /* GPIO Ports Clock Enable */
+  __HAL_RCC_GPIOC_CLK_ENABLE();
   __HAL_RCC_GPIOE_CLK_ENABLE();
+  __HAL_RCC_GPIOH_CLK_ENABLE();
   __HAL_RCC_GPIOF_CLK_ENABLE();
   __HAL_RCC_GPIOG_CLK_ENABLE();
 
@@ -469,6 +558,7 @@ static void MX_GPIO_Init(void)
   * @param  len: length of the data to write in bytes.
   * @retval length of the written data in bytes.
   */
+/* USER CODE BEGIN 4 */
 #if defined(__ICCARM__)
 size_t __write(int file, unsigned char const *ptr, size_t len)
 {
@@ -484,33 +574,215 @@ size_t __write(int file, unsigned char const *ptr, size_t len)
 }
 #endif /* __ICCARM__ */
 
-/**
-  * @brief  Retargets the C library printf function to the USART.
-  */
 PUTCHAR_PROTOTYPE
 {
-  /* Place your implementation of putchar here */
-  /* e.g. write a character to the USART1 and Loop until the end of transmission */
   HAL_UART_Transmit(&huart1, (uint8_t *)&ch, 1, 0xFFFF);
-
   return ch;
 }
 
-/**
-* @brief  This function is executed in case of success.
-* @retval None
-*/
+int32_t platform_read(void *handle, uint8_t reg, uint8_t *bufp, uint16_t len)
+{
+  uint16_t dev_addr = *(uint16_t *)handle;
+
+  if (len > 1)
+  {
+    reg |= 0x80;
+  }
+
+  if (HAL_I2C_Mem_Read(&hi2c1, dev_addr, reg, I2C_MEMADD_SIZE_8BIT, bufp, len, 1000) == HAL_OK)
+  {
+    return 0;
+  }
+
+  return -1;
+}
+
+int32_t platform_write(void *handle, uint8_t reg, const uint8_t *bufp, uint16_t len)
+{
+  uint16_t dev_addr = *(uint16_t *)handle;
+
+  if (len > 1)
+  {
+    reg |= 0x80;
+  }
+
+  if (HAL_I2C_Mem_Write(&hi2c1, dev_addr, reg, I2C_MEMADD_SIZE_8BIT, (uint8_t *)bufp, len, 1000) == HAL_OK)
+  {
+    return 0;
+  }
+
+  return -1;
+}
+
+float hts221_from_lsb_to_celsius_custom(int16_t lsb)
+{
+  float t0_degc, t1_degc, t0_out, t1_out;
+
+  hts221_temp_deg_point_0_get(&hts221_ctx, &t0_degc);
+  hts221_temp_deg_point_1_get(&hts221_ctx, &t1_degc);
+  hts221_temp_adc_point_0_get(&hts221_ctx, &t0_out);
+  hts221_temp_adc_point_1_get(&hts221_ctx, &t1_out);
+
+  return t0_degc + ((float)lsb - t0_out) * (t1_degc - t0_degc) / (t1_out - t0_out);
+}
+
+float hts221_from_lsb_to_humidity_custom(int16_t lsb)
+{
+  float h0_rh, h1_rh, h0_out, h1_out;
+  float humidity;
+
+  hts221_hum_rh_point_0_get(&hts221_ctx, &h0_rh);
+  hts221_hum_rh_point_1_get(&hts221_ctx, &h1_rh);
+  hts221_hum_adc_point_0_get(&hts221_ctx, &h0_out);
+  hts221_hum_adc_point_1_get(&hts221_ctx, &h1_out);
+
+  humidity = h0_rh + ((float)lsb - h0_out) * (h1_rh - h0_rh) / (h1_out - h0_out);
+
+  if (humidity > 100.0f) humidity = 100.0f;
+  if (humidity < 0.0f) humidity = 0.0f;
+
+  return humidity;
+}
+
+int Sensors_Init(void)
+{
+  uint8_t whoami = 0;
+
+  hts221_ctx.read_reg = platform_read;
+  hts221_ctx.write_reg = platform_write;
+  hts221_ctx.handle = &hts221_addr;
+
+  lps22hh_ctx.read_reg = platform_read;
+  lps22hh_ctx.write_reg = platform_write;
+  lps22hh_ctx.handle = &lps22hh_addr;
+
+  if (hts221_device_id_get(&hts221_ctx, &whoami) != 0)
+  {
+    printf("HTS221 read ID failed\r\n");
+    return -1;
+  }
+
+  if (whoami != HTS221_ID)
+  {
+    printf("HTS221 wrong ID: 0x%02X\r\n", whoami);
+    return -2;
+  }
+
+  if (lps22hh_device_id_get(&lps22hh_ctx, &whoami) != 0)
+  {
+    printf("LPS22HH read ID failed\r\n");
+    return -3;
+  }
+
+  if (whoami != LPS22HH_ID)
+  {
+    printf("LPS22HH wrong ID: 0x%02X\r\n", whoami);
+    return -4;
+  }
+
+  if (hts221_power_on_set(&hts221_ctx, PROPERTY_ENABLE) != 0)
+  {
+    return -5;
+  }
+
+  HAL_Delay(100);
+
+  if (hts221_block_data_update_set(&hts221_ctx, PROPERTY_ENABLE) != 0)
+  {
+    return -6;
+  }
+
+  if (hts221_data_rate_set(&hts221_ctx, HTS221_ODR_1Hz) != 0)
+  {
+    return -7;
+  }
+
+  HAL_Delay(100);
+
+  if (lps22hh_reset_set(&lps22hh_ctx, PROPERTY_ENABLE) != 0)
+  {
+    return -8;
+  }
+
+  HAL_Delay(100);
+
+  if (lps22hh_block_data_update_set(&lps22hh_ctx, PROPERTY_ENABLE) != 0)
+  {
+    return -9;
+  }
+
+  if (lps22hh_data_rate_set(&lps22hh_ctx, LPS22HH_1_Hz) != 0)
+  {
+    return -10;
+  }
+
+  HAL_Delay(100);
+
+  printf("HTS221 + LPS22HH initialized\r\n");
+  return 0;
+}
+
+int Sensors_Read(float *temp, float *hum, float *press_hpa)
+{
+  hts221_status_reg_t hts_status;
+  lps22hh_status_t lps_status;
+
+  if ((temp == NULL) || (hum == NULL) || (press_hpa == NULL))
+  {
+    return -1;
+  }
+
+  if (hts221_status_get(&hts221_ctx, &hts_status) != 0)
+  {
+    return -2;
+  }
+
+  if (hts_status.h_da)
+  {
+    if (hts221_humidity_raw_get(&hts221_ctx, &hts221_hum_raw) == 0)
+    {
+      *hum = hts221_from_lsb_to_humidity_custom(hts221_hum_raw);
+    }
+  }
+
+  if (hts_status.t_da)
+  {
+    if (hts221_temperature_raw_get(&hts221_ctx, &hts221_temp_raw) == 0)
+    {
+      *temp = hts221_from_lsb_to_celsius_custom(hts221_temp_raw);
+    }
+  }
+
+  if (lps22hh_status_reg_get(&lps22hh_ctx, &lps_status) != 0)
+  {
+    return -3;
+  }
+
+  if (lps_status.p_da)
+  {
+    if (lps22hh_pressure_raw_get(&lps22hh_ctx, &lps22hh_press_raw) == 0)
+    {
+      *press_hpa = lps22hh_from_lsb_to_hpa(lps22hh_press_raw);
+    }
+
+  }
+
+  return 0;
+}
+
 void Success_Handler(void)
 {
-  /* USER CODE BEGIN Success_Handler_Debug */
   HAL_GPIO_WritePin(LED_RED_GPIO_Port, LED_RED_Pin, GPIO_PIN_SET);
-  while(1)
+  while (1)
   {
     HAL_GPIO_TogglePin(LED_GREEN_GPIO_Port, LED_GREEN_Pin);
     tx_thread_sleep(50);
   }
   /* USER CODE END Success_Handler_Debug */
 }
+
+
+
 
 /* USER CODE END 4 */
 

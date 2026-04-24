@@ -31,13 +31,15 @@ Application/User/Core/main.o: \
  ../../../Drivers/STM32N6xx_HAL_Driver/Inc/stm32n6xx_hal_eth.h \
  ../../../Drivers/STM32N6xx_HAL_Driver/Inc/stm32n6xx_hal_eth_ex.h \
  ../../../Drivers/STM32N6xx_HAL_Driver/Inc/stm32n6xx_hal_exti.h \
+ ../../../Drivers/STM32N6xx_HAL_Driver/Inc/stm32n6xx_hal_i2c.h \
+ ../../../Drivers/STM32N6xx_HAL_Driver/Inc/stm32n6xx_hal_i2c_ex.h \
  ../../../Drivers/STM32N6xx_HAL_Driver/Inc/stm32n6xx_hal_pwr.h \
  ../../../Drivers/STM32N6xx_HAL_Driver/Inc/stm32n6xx_hal_pwr_ex.h \
  ../../../Drivers/STM32N6xx_HAL_Driver/Inc/stm32n6xx_hal_tim.h \
  ../../../Drivers/STM32N6xx_HAL_Driver/Inc/stm32n6xx_hal_tim_ex.h \
  ../../../Drivers/STM32N6xx_HAL_Driver/Inc/stm32n6xx_hal_uart.h \
  ../../../Drivers/STM32N6xx_HAL_Driver/Inc/stm32n6xx_hal_uart_ex.h \
- ../../../FSBL/Core/Inc/hts221_reg.h
+ ../../../FSBL/Core/Inc/hts221_reg.h ../../../FSBL/Core/Inc/lps22hh_reg.h
 ../../../FSBL/Core/Inc/app_threadx.h:
 ../../../Middlewares/ST/threadx/common/inc/tx_api.h:
 ../../../Middlewares/ST/threadx/ports/cortex_m55/gnu/inc/tx_port.h:
@@ -70,6 +72,8 @@ Application/User/Core/main.o: \
 ../../../Drivers/STM32N6xx_HAL_Driver/Inc/stm32n6xx_hal_eth.h:
 ../../../Drivers/STM32N6xx_HAL_Driver/Inc/stm32n6xx_hal_eth_ex.h:
 ../../../Drivers/STM32N6xx_HAL_Driver/Inc/stm32n6xx_hal_exti.h:
+../../../Drivers/STM32N6xx_HAL_Driver/Inc/stm32n6xx_hal_i2c.h:
+../../../Drivers/STM32N6xx_HAL_Driver/Inc/stm32n6xx_hal_i2c_ex.h:
 ../../../Drivers/STM32N6xx_HAL_Driver/Inc/stm32n6xx_hal_pwr.h:
 ../../../Drivers/STM32N6xx_HAL_Driver/Inc/stm32n6xx_hal_pwr_ex.h:
 ../../../Drivers/STM32N6xx_HAL_Driver/Inc/stm32n6xx_hal_tim.h:
@@ -77,3 +81,4 @@ Application/User/Core/main.o: \
 ../../../Drivers/STM32N6xx_HAL_Driver/Inc/stm32n6xx_hal_uart.h:
 ../../../Drivers/STM32N6xx_HAL_Driver/Inc/stm32n6xx_hal_uart_ex.h:
 ../../../FSBL/Core/Inc/hts221_reg.h:
+../../../FSBL/Core/Inc/lps22hh_reg.h:
